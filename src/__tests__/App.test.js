@@ -22,7 +22,7 @@ test("displays an image of yourself", () => {
 
   const image = screen.getByAltText("My profile pic");
 
-  expect(image).toHaveAttribute("src", "https://via.placeholder.com/350");
+  expect(image).toHaveAttribute("src", "http://placebeard.it/1024");
 });
 
 test("displays second-level heading with the text `About Me`", () => {
@@ -69,30 +69,31 @@ test("displays the correct links", () => {
 test("the form includes text inputs for name and email address", () => {
   render(<App />);
 
-  expect(screen.getByLabelText(/enter your name/i)).toBeInTheDocument();
-  expect(
-    screen.getByLabelText(/enter your email address/i)
-  ).toBeInTheDocument();
+  expect(screen.getByLabelText(/full name/i)).toBeInTheDocument();
+  expect(screen.getByLabelText(/email address/i)).toBeInTheDocument();
 });
 
-test("the form includes three checkboxes to select areas of interest", () => {
+test("the form includes four checkboxes to select areas of interest", () => {
   render(<App />);
 
-  expect(screen.getAllByRole("checkbox").length).toBe(3);
+  expect(screen.getAllByRole("checkbox").length).toBe(4);
 });
 
 test("the checkboxes are initially unchecked", () => {
+  const interests = [
+    { name: "Eating", checked: false },
+    { name: "Sleeping", checked: false },
+    { name: "Coding", checked: false },
+    { name: "Tacos", checked: false },
+  ];
+
   render(<App />);
 
-  expect(
-    screen.getByRole("checkbox", { name: /interest 1/i })
-  ).not.toBeChecked();
-  expect(
-    screen.getByRole("checkbox", { name: /interest 2/i })
-  ).not.toBeChecked();
-  expect(
-    screen.getByRole("checkbox", { name: /interest 3/i })
-  ).not.toBeChecked();
+  interests.forEach((interest) => {
+    expect(
+      screen.getByRole("checkbox", { name: interest.name })
+    ).not.toBeChecked();
+  });
 });
 
 test("the form includes a Submit button", () => {
@@ -105,8 +106,8 @@ test("the form includes a Submit button", () => {
 test("the page shows information the user types into the name and email address form fields", () => {
   render(<App />);
 
-  const fullName = screen.getByLabelText(/enter your name/i);
-  const emailAddress = screen.getByLabelText(/enter your email address/i);
+  const fullName = screen.getByLabelText(/full name/i);
+  const emailAddress = screen.getByLabelText(/email address/i);
 
   userEvent.type(fullName, "Fname Lname");
   userEvent.type(emailAddress, "fnamelname@email.com");
@@ -118,29 +119,34 @@ test("the page shows information the user types into the name and email address 
 test("checked status of checkboxes changes when user clicks them", () => {
   render(<App />);
 
-  const interest1 = screen.getByRole("checkbox", { name: /interest 1/i });
-  const interest2 = screen.getByRole("checkbox", { name: /interest 2/i });
-  const interest3 = screen.getByRole("checkbox", { name: /interest 3/i });
+  const interests = [
+    { name: "Eating", checked: false },
+    { name: "Sleeping", checked: false },
+    { name: "Coding", checked: false },
+    { name: "Tacos", checked: false },
+  ];
 
-  userEvent.click(interest1);
-  userEvent.click(interest2);
-  userEvent.click(interest3);
+  interests.forEach((interest) => {
+    const checkbox = screen.getByRole("checkbox", { name: interest.name });
 
-  expect(interest1).toBeChecked();
-  expect(interest2).toBeChecked();
-  expect(interest3).toBeChecked();
+    userEvent.click(checkbox);
+
+    expect(checkbox).toBeChecked();
+  });
 });
 
 test("a message is displayed when the user clicks the Submit button", () => {
   render(<App />);
 
-  userEvent.type(screen.getByLabelText(/enter your name/i), "Fname Lname");
+  userEvent.type(screen.getByLabelText(/full name/i), "Fname Lname");
   userEvent.type(
-    screen.getByLabelText(/enter your email address/i),
+    screen.getByLabelText(/email address/i),
     "fnamelname@email.com"
   );
-  userEvent.click(screen.getByRole("checkbox", { name: /interest 1/i }));
-  userEvent.click(screen.getByRole("checkbox", { name: /interest 3/i }));
+
+  userEvent.click(screen.getByRole("checkbox", { name: /Eating/i }));
+  userEvent.click(screen.getByRole("checkbox", { name: /Sleeping/i }));
+
   userEvent.click(screen.getByRole("button", { name: /submit/i }));
 
   expect(
@@ -149,6 +155,7 @@ test("a message is displayed when the user clicks the Submit button", () => {
     )
   ).toBeInTheDocument();
   expect(screen.getAllByRole("listitem").length).toBe(2);
-  expect(screen.getByText("Interest 1")).toBeInTheDocument();
-  expect(screen.getByText("Interest 3")).toBeInTheDocument();
+
+  expect(screen.getByText(/eating/i)).toBeInTheDocument();
+  expect(screen.getByText(/sleeping/i)).toBeInTheDocument();
 });

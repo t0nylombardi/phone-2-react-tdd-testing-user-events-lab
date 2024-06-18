@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .font {
+    font-family: "Roboto", sans-serif;
+  }
+}
+
+body {
+  @apply bg-blog-blue h-screen;
+}
